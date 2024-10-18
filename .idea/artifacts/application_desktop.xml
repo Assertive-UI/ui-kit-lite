@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="application-desktop">
+    <output-path>$PROJECT_DIR$/application/build/libs</output-path>
+    <root id="archive" name="application-desktop.jar">
+      <element id="module-output" name="AssertiveUIKitLite.application.desktopMain" />
+    </root>
+  </artifact>
+</component>
