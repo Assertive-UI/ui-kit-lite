@@ -21,11 +21,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import com.assertiveui.kit.lite.core.theme.getDefaultColorPalette
 import com.assertiveui.kit.lite.core.utils.applyBasicAssertiveUIKitStyle
 import com.assertiveui.kit.lite.core.utils.setupEdgeToEdge
 import com.stoyanvuchev.systemuibarstweaker.ProvideSystemUIBarsTweaker
@@ -41,27 +36,16 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             val tweaker = rememberSystemUIBarsTweaker()
-            val isSystemInDarkTheme = isSystemInDarkTheme()
-
-            var darkTheme by remember { mutableStateOf(isSystemInDarkTheme) }
-            val colorPalette by remember { mutableStateOf(getDefaultColorPalette(darkTheme)) }
+            val darkTheme = isSystemInDarkTheme()
 
             DisposableEffect(darkTheme, tweaker) {
-                tweaker.applyBasicAssertiveUIKitStyle(
-                    darkTheme = darkTheme,
-                    lightThemeScrimColor = colorPalette.surfaceElevationLow,
-                    darkThemeScrimColor = colorPalette.surfaceElevationLow
-                )
+                tweaker.applyBasicAssertiveUIKitStyle(darkTheme)
                 onDispose {}
             }
 
             ProvideSystemUIBarsTweaker(
                 systemUIBarsTweaker = tweaker,
-                content = {
-
-                    App(onApplyDarkIcons = remember { { darkTheme = it } })
-
-                }
+                content = { App() }
             )
 
         }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.assertiveui.kit.lite.core.utils
+package com.assertiveui.kit.lite.core.utils.window
 
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
@@ -25,13 +25,38 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
-import com.assertiveui.kit.lite.core.utils.ScreenOrientation.Companion.isPortrait
+import com.assertiveui.kit.lite.core.utils.etc.transformFraction
+import com.assertiveui.kit.lite.core.utils.window.ScreenOrientation.Companion.isPortrait
 
 /**
  *
  * A [WindowState] empowers the ability to implement adaptive UIs in your app,
  * simply by evaluating the width and the height of a root composable layout.
+ *
+ * This is a Top-Level function and it should be called at the root UI composable.
+ *
+ * ```
+ * BoxWithConstraints {
+ *
+ *     val windowState by rememberWindowState(
+ *         rootSize = DpSize(
+ *             width = this@BoxWithConstraints.maxWidth,
+ *             height = this@BoxWithConstraints.maxHeight
+ *         )
+ *     )
+ *
+ *     CompositionLocalProvider(
+ *         LocalWindowState provides windowState
+ *     ) {
+ *
+ *         // UI Content ...
+ *
+ *     }
+ *
+ * }
+ * ```
  *
  * @param rootSize The [DpSize] of the root composable layout (e.g. [BoxWithConstraints]).
  *
@@ -41,20 +66,24 @@ import com.assertiveui.kit.lite.core.utils.ScreenOrientation.Companion.isPortrai
 fun rememberWindowState(rootSize: DpSize): State<WindowState> {
     return rememberUpdatedState(
         WindowState(
-            availableWidthSize = when {
-                rootSize.width < 480.dp -> WindowSize.Compact
-                rootSize.width < 900.dp -> WindowSize.Medium
-                else -> WindowSize.Large
-            },
-            availableHeightSize = when {
-                rootSize.height < 480.dp -> WindowSize.Compact
-                rootSize.height < 900.dp -> WindowSize.Medium
-                else -> WindowSize.Large
-            },
+            availableWidthSize = calculateWindowSize(rootSize.width),
+            availableHeightSize = calculateWindowSize(rootSize.height),
             availableWidthDp = rootSize.width,
             availableHeightDp = rootSize.height
         )
     )
+}
+
+/**
+ * Calculates a [WindowSize] from the provided [Dp] size.
+ * @param size The provided [Dp] size.
+ */
+private fun calculateWindowSize(size: Dp): WindowSize {
+    return when {
+        size < WindowUtilsTokens.WindowSize.MaxCompactWidth -> WindowSize.Compact
+        size < WindowUtilsTokens.WindowSize.MaxMediumWidth -> WindowSize.Medium
+        else -> WindowSize.Large
+    }
 }
 
 /**
@@ -183,19 +212,41 @@ enum class ScreenOrientation {
  * with additional functionality.
  */
 @Immutable
-class WindowState(
+data class WindowState(
     val availableWidthSize: WindowSize,
     val availableHeightSize: WindowSize,
     val availableWidthDp: Dp,
     val availableHeightDp: Dp
 ) {
 
+    /**
+     * Returns true if the available [WindowSize] width is [WindowSize.Compact], false otherwise.
+     */
     val isCompactWidth get() = availableWidthSize == WindowSize.Compact
+
+    /**
+     * Returns true if the available [WindowSize] width is [WindowSize.Medium], false otherwise.
+     */
     val isMediumWidth get() = availableWidthSize == WindowSize.Medium
+
+    /**
+     * Returns true if the available [WindowSize] width is [WindowSize.Large], false otherwise.
+     */
     val isLargeWidth get() = availableWidthSize == WindowSize.Large
 
+    /**
+     * Returns true if the available [WindowSize] height is [WindowSize.Compact], false otherwise.
+     */
     val isCompactHeight get() = availableHeightSize == WindowSize.Compact
+
+    /**
+     * Returns true if the available [WindowSize] height is [WindowSize.Medium], false otherwise.
+     */
     val isMediumHeight get() = availableHeightSize == WindowSize.Medium
+
+    /**
+     * Returns true if the available [WindowSize] height is [WindowSize.Large], false otherwise.
+     */
     val isLargeHeight get() = availableHeightSize == WindowSize.Large
 
     /**
@@ -237,32 +288,20 @@ class WindowState(
             else -> ScreenOrientation.Square
         }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || other !is WindowState) return false
-        if (availableWidthSize != other.availableWidthSize) return false
-        if (availableHeightSize != other.availableHeightSize) return false
-        if (availableWidthDp != other.availableWidthDp) return false
-        if (availableHeightDp != other.availableHeightDp) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = availableWidthSize.hashCode()
-        result += availableHeightSize.hashCode()
-        result += availableWidthDp.hashCode()
-        result += availableHeightDp.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "WindowState(" +
-                "screenWidthSize=$availableWidthSize, " +
-                "screenHeightSize=$availableHeightSize, " +
-                "screenWidthDp=$availableWidthDp, " +
-                "screenHeightDp=$availableHeightDp" +
-                ")"
-    }
+    /**
+     * The horizontal content padding based on the available width.
+     */
+    val horizontalPadding: Dp
+        get() = transformFraction(
+            value = availableWidthDp.coerceIn(
+                minimumValue = WindowUtilsTokens.WindowSize.MaxCompactWidth,
+                maximumValue = WindowUtilsTokens.WindowSize.MaxLargeWidth
+            ).value,
+            startX = WindowUtilsTokens.WindowSize.MaxCompactWidth.value,
+            endX = WindowUtilsTokens.WindowSize.MaxLargeWidth.value,
+            startY = WindowUtilsTokens.HorizontalPadding.MinHorizontalPadding.value,
+            endY = WindowUtilsTokens.HorizontalPadding.MaxHorizontalPadding.value
+        ).dp
 
 }
 

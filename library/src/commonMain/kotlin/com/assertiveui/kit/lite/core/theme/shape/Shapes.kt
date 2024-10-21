@@ -24,13 +24,15 @@ import androidx.compose.ui.graphics.Shape
  *
  * A collection of [Shapes] that can be applied to the application theme.
  *
+ * @param extraShape A large shape for UI components such as bars and buttons.
  * @param largeShape A large shape for UI components with the highest priority.
  * @param mediumShape A medium shape for UI components with the moderate priority.
  * @param smallShape A medium shape for UI components with the lowest priority.
  *
  */
 @Immutable
-class Shapes(
+data class Shapes(
+    val extraShape: Shape = DefaultShapeTokens.extraShape,
     val largeShape: Shape = DefaultShapeTokens.largeShape,
     val mediumShape: Shape = DefaultShapeTokens.mediumShape,
     val smallShape: Shape = DefaultShapeTokens.smallShape
@@ -43,30 +45,6 @@ class Shapes(
          */
         val Default get() = Shapes()
 
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || other !is Shapes) return false
-        if (largeShape != other.largeShape) return false
-        if (mediumShape != other.mediumShape) return false
-        if (smallShape != other.smallShape) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = largeShape.hashCode()
-        result += mediumShape.hashCode()
-        result += smallShape.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "Shapes(" +
-                "largeShape=$largeShape" +
-                "mediumShape=$mediumShape, " +
-                "smallShape=$smallShape" +
-                ")"
     }
 
 }

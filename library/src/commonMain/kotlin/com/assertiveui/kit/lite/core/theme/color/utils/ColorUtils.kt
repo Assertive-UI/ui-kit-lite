@@ -21,6 +21,8 @@ import com.assertiveui.kit.lite.core.theme.color.palette.ColorPalette
 import com.assertiveui.kit.lite.core.theme.color.palette.ColorPaletteModel
 import com.assertiveui.kit.lite.core.theme.color.utils.ColorUtils.generateColorTones
 import com.assertiveui.kit.lite.core.theme.color.utils.ColorUtilsTokens.ColorPaletteGeneration.ACCENT_HUE_OFFSET
+import com.assertiveui.kit.lite.core.theme.color.utils.ColorUtilsTokens.ColorPaletteGeneration.DarkColorsExtraction
+import com.assertiveui.kit.lite.core.theme.color.utils.ColorUtilsTokens.ColorPaletteGeneration.LightColorsExtraction
 import com.assertiveui.kit.lite.core.theme.color.utils.ColorUtilsTokens.ColorToneGeneration.TONES_ALPHA
 import com.assertiveui.kit.lite.core.theme.color.utils.ColorUtilsTokens.ColorToneGeneration.TONES_COUNT
 import com.assertiveui.kit.lite.core.theme.color.utils.ColorUtilsTokens.ColorToneGeneration.TONES_HUE_OFFSET
@@ -83,44 +85,44 @@ object ColorUtils {
             val errorTonesHue = 0
             val errorTones = generateColorTones(hue = errorTonesHue)
 
-            val colorPalette = ColorPalette(
+            val lightColorPalette = ColorPalette(
                 baseHue = baseHue,
-                base = baseTones[10],
-                onBase = baseTones[28],
+                base = baseTones[LightColorsExtraction.BASE],
+                onBase = baseTones[LightColorsExtraction.ON_BASE],
                 accentHue = accentTonesHue,
-                accent = accentTones[10],
-                onAccent = accentTones[28],
-                surfaceElevationLow = surfaceTones[26],
-                onSurfaceElevationLow = surfaceTones[5],
-                surfaceElevationMedium = surfaceTones[27],
-                onSurfaceElevationMedium = surfaceTones[4],
-                surfaceElevationHigh = surfaceTones[28],
-                onSurfaceElevationHigh = surfaceTones[3],
-                error = errorTones[10],
-                onError = errorTones[28],
-                outline = surfaceTones[24]
+                accent = accentTones[LightColorsExtraction.ACCENT],
+                onAccent = accentTones[LightColorsExtraction.ON_ACCENT],
+                surfaceLow = surfaceTones[LightColorsExtraction.SURFACE_LOW],
+                onSurfaceLow = surfaceTones[LightColorsExtraction.ON_SURFACE_LOW],
+                surfaceMedium = surfaceTones[LightColorsExtraction.SURFACE_MEDIUM],
+                onSurfaceMedium = surfaceTones[LightColorsExtraction.ON_SURFACE_MEDIUM],
+                surfaceHigh = surfaceTones[LightColorsExtraction.SURFACE_HIGH],
+                onSurfaceHigh = surfaceTones[LightColorsExtraction.ON_SURFACE_HIGH],
+                error = errorTones[LightColorsExtraction.ERROR],
+                onError = errorTones[LightColorsExtraction.ON_ERROR],
+                outline = surfaceTones[LightColorsExtraction.OUTLINE]
             )
 
             val darkColorPalette = ColorPalette(
                 baseHue = baseHue,
-                base = baseTones[20],
-                onBase = baseTones[3],
+                base = baseTones[DarkColorsExtraction.BASE],
+                onBase = baseTones[DarkColorsExtraction.ON_BASE],
                 accentHue = accentTonesHue,
-                accent = accentTones[20],
-                onAccent = accentTones[3],
-                surfaceElevationLow = surfaceTones[4],
-                onSurfaceElevationLow = surfaceTones[26],
-                surfaceElevationMedium = surfaceTones[5],
-                onSurfaceElevationMedium = surfaceTones[27],
-                surfaceElevationHigh = surfaceTones[6],
-                onSurfaceElevationHigh = surfaceTones[28],
-                error = errorTones[20],
-                onError = errorTones[3],
-                outline = surfaceTones[6]
+                accent = accentTones[DarkColorsExtraction.ACCENT],
+                onAccent = accentTones[DarkColorsExtraction.ON_ACCENT],
+                surfaceLow = surfaceTones[DarkColorsExtraction.SURFACE_LOW],
+                onSurfaceLow = surfaceTones[DarkColorsExtraction.ON_SURFACE_LOW],
+                surfaceMedium = surfaceTones[DarkColorsExtraction.SURFACE_MEDIUM],
+                onSurfaceMedium = surfaceTones[DarkColorsExtraction.ON_SURFACE_MEDIUM],
+                surfaceHigh = surfaceTones[DarkColorsExtraction.SURFACE_HIGH],
+                onSurfaceHigh = surfaceTones[DarkColorsExtraction.ON_SURFACE_HIGH],
+                error = errorTones[DarkColorsExtraction.ERROR],
+                onError = errorTones[DarkColorsExtraction.ON_ERROR],
+                outline = surfaceTones[DarkColorsExtraction.OUTLINE]
             )
 
             val colorPaletteModel = ColorPaletteModel(
-                lightColorPalette = colorPalette,
+                lightColorPalette = lightColorPalette,
                 darkColorPalette = darkColorPalette,
                 baseColorTonesHue = baseHue,
                 baseColorTones = baseTones,

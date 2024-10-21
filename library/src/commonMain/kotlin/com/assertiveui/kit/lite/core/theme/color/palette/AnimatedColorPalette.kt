@@ -38,14 +38,14 @@ fun ColorPalette.asAnimatedColorPalette(): ColorPalette {
     val animatedAccent by animateColor(this.accent)
     val animatedOnAccent by animateColor(this.onAccent)
 
-    val animatedSurfaceElevationLow by animateColor(this.surfaceElevationLow)
-    val animatedOnSurfaceElevationLow by animateColor(this.onSurfaceElevationLow)
+    val animatedsurfaceLow by animateColor(this.surfaceLow)
+    val animatedonSurfaceLow by animateColor(this.onSurfaceLow)
 
-    val animatedSurfaceElevationMedium by animateColor(this.surfaceElevationMedium)
-    val animatedOnSurfaceElevationMedium by animateColor(this.onSurfaceElevationMedium)
+    val animatedsurfaceMedium by animateColor(this.surfaceMedium)
+    val animatedonSurfaceMedium by animateColor(this.onSurfaceMedium)
 
-    val animatedSurfaceElevationHigh by animateColor(this.surfaceElevationHigh)
-    val animatedOnSurfaceElevationHigh by animateColor(this.onSurfaceElevationHigh)
+    val animatedsurfaceHigh by animateColor(this.surfaceHigh)
+    val animatedonSurfaceHigh by animateColor(this.onSurfaceHigh)
 
     val animatedError by animateColor(this.error)
     val animatedOnError by animateColor(this.onError)
@@ -59,12 +59,12 @@ fun ColorPalette.asAnimatedColorPalette(): ColorPalette {
         accentHue = animatedAccentHue,
         accent = animatedAccent,
         onAccent = animatedOnAccent,
-        surfaceElevationLow = animatedSurfaceElevationLow,
-        onSurfaceElevationLow = animatedOnSurfaceElevationLow,
-        surfaceElevationMedium = animatedSurfaceElevationMedium,
-        onSurfaceElevationMedium = animatedOnSurfaceElevationMedium,
-        surfaceElevationHigh = animatedSurfaceElevationHigh,
-        onSurfaceElevationHigh = animatedOnSurfaceElevationHigh,
+        surfaceLow = animatedsurfaceLow,
+        onSurfaceLow = animatedonSurfaceLow,
+        surfaceMedium = animatedsurfaceMedium,
+        onSurfaceMedium = animatedonSurfaceMedium,
+        surfaceHigh = animatedsurfaceHigh,
+        onSurfaceHigh = animatedonSurfaceHigh,
         error = animatedError,
         onError = animatedOnError,
         outline = animatedOutline

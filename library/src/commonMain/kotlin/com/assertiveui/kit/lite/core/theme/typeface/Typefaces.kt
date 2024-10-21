@@ -37,7 +37,7 @@ import androidx.compose.ui.text.TextStyle
  *
  */
 @Immutable
-class Typefaces(
+data class Typefaces(
     val titleLarge: TextStyle = DefaultTypefaceTokens.titleLarge,
     val titleMedium: TextStyle = DefaultTypefaceTokens.titleMedium,
     val titleSmall: TextStyle = DefaultTypefaceTokens.titleSmall,
@@ -56,73 +56,6 @@ class Typefaces(
          */
         val Default get() = Typefaces()
 
-    }
-
-    /**
-     * Creates a copy of this [Typefaces], with an optional overriding.
-     */
-    fun copy(
-        titleLarge: TextStyle = this.titleLarge,
-        titleMedium: TextStyle = this.titleMedium,
-        titleSmall: TextStyle = this.titleSmall,
-        actionLarge: TextStyle = this.actionLarge,
-        actionMedium: TextStyle = this.actionMedium,
-        actionSmall: TextStyle = this.actionSmall,
-        bodyLarge: TextStyle = this.bodyLarge,
-        bodyMedium: TextStyle = this.bodyMedium,
-        bodySmall: TextStyle = this.bodySmall
-    ) = Typefaces(
-        titleLarge = titleLarge,
-        titleMedium = titleMedium,
-        titleSmall = titleSmall,
-        actionLarge = actionLarge,
-        actionMedium = actionMedium,
-        actionSmall = actionSmall,
-        bodyLarge = bodyLarge,
-        bodyMedium = bodyMedium,
-        bodySmall = bodySmall
-    )
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || other !is Typefaces) return false
-        if (titleLarge != other.titleLarge) return false
-        if (titleMedium != other.titleMedium) return false
-        if (titleSmall != other.titleSmall) return false
-        if (actionLarge != other.actionLarge) return false
-        if (actionMedium != other.actionMedium) return false
-        if (actionSmall != other.actionSmall) return false
-        if (bodyLarge != other.bodyLarge) return false
-        if (bodyMedium != other.bodyMedium) return false
-        if (bodySmall != other.bodySmall) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = titleLarge.hashCode()
-        result += titleMedium.hashCode()
-        result += titleSmall.hashCode()
-        result += actionLarge.hashCode()
-        result += actionMedium.hashCode()
-        result += actionSmall.hashCode()
-        result += bodyLarge.hashCode()
-        result += bodyMedium.hashCode()
-        result += bodySmall.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "Typefaces(" +
-                "titleLarge=$titleLarge," +
-                "titleMedium=$titleMedium, " +
-                "titleSmall=$titleSmall, " +
-                "actionLarge=$actionLarge, " +
-                "actionMedium=$actionMedium, " +
-                "actionSmall=$actionSmall, " +
-                "bodyLarge=$bodyLarge, " +
-                "bodyMedium=$bodyMedium, " +
-                "bodySmall=$bodySmall" +
-                ")"
     }
 
 }
