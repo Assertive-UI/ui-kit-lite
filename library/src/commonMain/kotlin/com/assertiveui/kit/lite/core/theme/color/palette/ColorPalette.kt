@@ -20,6 +20,25 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
+/**
+ * Represents a color palette containing a variety of colors, each with a specific role in Assertive UI.
+ *
+ * @property baseHue The base hue for the primary colors in the palette, represented as an integer value.
+ * @property base The primary color in the palette, typically used for backgrounds or major UI components.
+ * @property onBase The color used for text and icons displayed on the primary color background.
+ * @property accentHue The hue for the accent color, represented as an integer value.
+ * @property accent The accent color in the palette, used to draw attention to important UI elements.
+ * @property onAccent The color used for text and icons displayed on the accent color background.
+ * @property surfaceLow The color used for low surfaces, such as container backgrounds or overlays.
+ * @property onSurfaceLow The color used for text and icons displayed on low surfaces.
+ * @property surfaceMedium The color used for medium surfaces, such as cards or list items.
+ * @property onSurfaceMedium The color used for text and icons displayed on medium surfaces.
+ * @property surfaceHigh The color used for high surfaces, typically for elevated components like bars or buttons.
+ * @property onSurfaceHigh The color used for text and icons displayed on high surfaces.
+ * @property error The color used to indicate errors or warnings in the UI.
+ * @property onError The color used for text and icons displayed on the error color background.
+ * @property outline The color used for outlines or borders in the UI.
+ */
 @Stable
 data class ColorPalette(
     val baseHue: Int,
@@ -28,92 +47,50 @@ data class ColorPalette(
     val accentHue: Int,
     val accent: Color,
     val onAccent: Color,
-    val surfaceElevationLow: Color,
-    val onSurfaceElevationLow: Color,
-    val surfaceElevationMedium: Color,
-    val onSurfaceElevationMedium: Color,
-    val surfaceElevationHigh: Color,
-    val onSurfaceElevationHigh: Color,
+    val surfaceLow: Color,
+    val onSurfaceLow: Color,
+    val surfaceMedium: Color,
+    val onSurfaceMedium: Color,
+    val surfaceHigh: Color,
+    val onSurfaceHigh: Color,
     val error: Color,
     val onError: Color,
     val outline: Color
 )
 
 /**
- * A function that returns a default dark [ColorPalette], with an optional overriding.
+ * Returns a [ColorPalette] color based on the provided [ColorPaletteToken].
+ * @param token The provided [ColorPaletteToken].
  */
-@Stable
-fun lightColorPalette(
-    baseHue: Int = LightColorPaletteTokens.baseHue,
-    base: Color = LightColorPaletteTokens.base,
-    onBase: Color = LightColorPaletteTokens.onBase,
-    accentHue: Int = LightColorPaletteTokens.accentHue,
-    accent: Color = LightColorPaletteTokens.accent,
-    onAccent: Color = LightColorPaletteTokens.onAccent,
-    surfaceElevationLow: Color = LightColorPaletteTokens.surfaceElevationLow,
-    onSurfaceElevationLow: Color = LightColorPaletteTokens.onSurfaceElevationLow,
-    surfaceElevationMedium: Color = LightColorPaletteTokens.surfaceElevationMedium,
-    onSurfaceElevationMedium: Color = LightColorPaletteTokens.onSurfaceElevationMedium,
-    surfaceElevationHigh: Color = LightColorPaletteTokens.surfaceElevationHigh,
-    onSurfaceElevationHigh: Color = LightColorPaletteTokens.onSurfaceElevationHigh,
-    error: Color = LightColorPaletteTokens.error,
-    onError: Color = LightColorPaletteTokens.onError,
-    outline: Color = LightColorPaletteTokens.outline
-) = ColorPalette(
-    baseHue = baseHue,
-    base = base,
-    onBase = onBase,
-    accentHue = accentHue,
-    accent = accent,
-    onAccent = onAccent,
-    surfaceElevationLow = surfaceElevationLow,
-    onSurfaceElevationLow = onSurfaceElevationLow,
-    surfaceElevationMedium = surfaceElevationMedium,
-    onSurfaceElevationMedium = onSurfaceElevationMedium,
-    surfaceElevationHigh = surfaceElevationHigh,
-    onSurfaceElevationHigh = onSurfaceElevationHigh,
-    error = error,
-    onError = onError,
-    outline = outline
-)
+fun ColorPalette.colorFromToken(token: ColorPaletteToken) = when (token) {
+    ColorPaletteToken.Base -> base
+    ColorPaletteToken.OnBase -> onBase
+    ColorPaletteToken.Accent -> accent
+    ColorPaletteToken.OnAccent -> onAccent
+    ColorPaletteToken.SurfaceLow -> surfaceLow
+    ColorPaletteToken.OnSurfaceLow -> onSurfaceLow
+    ColorPaletteToken.SurfaceMedium -> surfaceMedium
+    ColorPaletteToken.OnSurfaceMedium -> onSurfaceMedium
+    ColorPaletteToken.SurfaceHigh -> surfaceHigh
+    ColorPaletteToken.OnSurfaceHigh -> onSurfaceHigh
+    ColorPaletteToken.Error -> error
+    ColorPaletteToken.OnError -> onError
+    ColorPaletteToken.Outline -> outline
+}
 
 /**
- * A function that returns a default dark [ColorPalette], with an optional overriding.
+ * Returns the content color that should be displayed on top the provided container color.
+ * @param containerColor The provided container color.
  */
-@Stable
-fun darkColorPalette(
-    baseHue: Int = DarkColorPaletteTokens.baseHue,
-    base: Color = DarkColorPaletteTokens.base,
-    onBase: Color = DarkColorPaletteTokens.onBase,
-    accentHue: Int = DarkColorPaletteTokens.accentHue,
-    accent: Color = DarkColorPaletteTokens.accent,
-    onAccent: Color = DarkColorPaletteTokens.onAccent,
-    surfaceElevationLow: Color = DarkColorPaletteTokens.surfaceElevationLow,
-    onSurfaceElevationLow: Color = DarkColorPaletteTokens.onSurfaceElevationLow,
-    surfaceElevationMedium: Color = DarkColorPaletteTokens.surfaceElevationMedium,
-    onSurfaceElevationMedium: Color = DarkColorPaletteTokens.onSurfaceElevationMedium,
-    surfaceElevationHigh: Color = DarkColorPaletteTokens.surfaceElevationHigh,
-    onSurfaceElevationHigh: Color = DarkColorPaletteTokens.onSurfaceElevationHigh,
-    error: Color = DarkColorPaletteTokens.error,
-    onError: Color = DarkColorPaletteTokens.onError,
-    outline: Color = DarkColorPaletteTokens.outline
-) = ColorPalette(
-    baseHue = baseHue,
-    base = base,
-    onBase = onBase,
-    accentHue = accentHue,
-    accent = accent,
-    onAccent = onAccent,
-    surfaceElevationLow = surfaceElevationLow,
-    onSurfaceElevationLow = onSurfaceElevationLow,
-    surfaceElevationMedium = surfaceElevationMedium,
-    onSurfaceElevationMedium = onSurfaceElevationMedium,
-    surfaceElevationHigh = surfaceElevationHigh,
-    onSurfaceElevationHigh = onSurfaceElevationHigh,
-    error = error,
-    onError = onError,
-    outline = outline
-)
+fun ColorPalette.contentColorFor(containerColor: Color) = when (containerColor) {
+    base -> onBase
+    accent -> onAccent
+    surfaceLow -> onSurfaceLow
+    surfaceMedium -> onSurfaceMedium
+    surfaceHigh -> surfaceHigh
+    error -> onError
+    else -> Color.Unspecified
+}
 
 /**
  * A CompositionLocal key used for providing a [ColorPalette] to the UI.

@@ -18,6 +18,7 @@ package com.assertiveui.kit.lite.core.utils
 
 import android.os.Build
 import androidx.compose.ui.graphics.Color
+import com.assertiveui.kit.lite.core.theme.color.palette.DefaultColorPaletteColors
 import com.stoyanvuchev.systemuibarstweaker.ScrimStyle
 import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
 
@@ -46,8 +47,8 @@ import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
  */
 fun SystemUIBarsTweaker.applyBasicAssertiveUIKitStyle(
     darkTheme: Boolean,
-    lightThemeScrimColor: Color = Color(0xFFFAFAFA),
-    darkThemeScrimColor: Color = Color(0xFF0D0D0D),
+    lightThemeScrimColor: Color = DefaultColorPaletteColors.Light.surfaceLow,
+    darkThemeScrimColor: Color = DefaultColorPaletteColors.Dark.surfaceLow,
 ) = tweakSystemBarsStyle(
     statusBarStyle = statusBarStyle.copy(
         darkIcons = !darkTheme

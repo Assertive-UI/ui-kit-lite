@@ -32,42 +32,50 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import com.assertiveui.kit.lite.core.theme.Theme
+import com.assertiveui.kit.lite.core.theme.color.palette.ColorPaletteToken
 import com.assertiveui.kit.lite.core.theme.color.palette.LocalContentColor
-import com.assertiveui.kit.lite.core.utils.LocalWindowState
+import com.assertiveui.kit.lite.core.theme.color.palette.colorFromToken
+import com.assertiveui.kit.lite.core.theme.color.palette.contentColorFor
+import com.assertiveui.kit.lite.core.utils.window.LocalWindowState
 
 /**
  *
- * Foundation Layout is used for implementing an organized UI hierarchy.
+ * The foundation for implementing an organized UI hierarchy.
  *
  * It provides the necessary functionality to put together several UI components
- * in order to construct an organized UI hierarchy, by ensuring proper layout strategy
- * by making an assertion based on the provided local context.
+ * into an organized UI hierarchy, by making an assertion
+ * based on the provided local context and other factors.
  *
- * @param modifier a [Modifier] to be applied to the scaffold
- * @param topBar a top app bar component, typically a [TopBar]
- * @param bottomBar a bottom bar component, typically a [NavigationBar]
- * @param sideRail a side rail component, typically a [NavigationRail]
- * @param snackbarHost a component to host [Snackbar]s that are pushed to be shown via
- * [SnackbarHostState.showSnackbar], typically a [SnackbarHost].
- * @param containerColor a color used for the background of the scaffold. Use [Color.Transparent]
+ * @param modifier An optional [Modifier] to be applied to the layout.
+ * @param topBar A top bar component, typically a TopBar.
+ * @param bottomBar A bottom bar component, typically a NavigationBar.
+ * @param sideRail A side rail component, typically a SideRail.
+ * @param snackbarHost A component to host snackbars.
+ * @param containerColor A color used for the background of the layout. Use [Color.Transparent]
  * to have no color.
- * @param contentColor a preferred color for the content inside the scaffold. Defaults to either the
+ * @param contentColor A preferred color for the content inside the layout. Defaults to either the
  * matching content color for [containerColor], or to the current [LocalContentColor] if
  * [containerColor] is not a color from the theme.
- * @param contentWindowInsets a window insets to be passed to [content] slot via [PaddingValues]
- * params. Scaffold will take the insets into account from the top/bottom/start only if the [topBar]/
- * [bottomBar]/[sideRail] are not present, as the scaffold expect [topBar]/[bottomBar]/[sideRail]
+ * @param contentWindowInsets A window insets to be passed to [content] slot via [PaddingValues]
+ * params. The layout will take the insets into account from the top/bottom/start only if the [topBar]/
+ * [bottomBar]/[sideRail] are not present, as the layout expect [topBar]/[bottomBar]/[sideRail]
  * to handle insets instead.
- * @param content the main content of the screen, e.g. a [LazyColumn]. The lambda receives a [PaddingValues] that should be
+ * @param content The main content of the screen, e.g. a [LazyColumn]. The lambda receives a [PaddingValues] that should be
  * applied to the content root via [Modifier.padding] and [Modifier.consumeWindowInsets] to
  * properly offset top / bottom bars and side rail. If using [Modifier.verticalScroll], apply this modifier to
- * the child of the scroll, and not on the scroll itself.
+ * the child of the scrollable component, and not on the scrollable itself.
  *
  */
 @Composable
@@ -77,54 +85,53 @@ fun FoundationLayout(
     bottomBar: @Composable () -> Unit = {},
     sideRail: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
-    containerColor: Color = Theme.colorPalette.surfaceElevationLow,
-    contentColor: Color = Theme.colorPalette.onSurfaceElevationLow,
+    containerColor: Color = Theme.colorPalette.colorFromToken(ColorPaletteToken.SurfaceLow),
+    contentColor: Color = Theme.colorPalette.contentColorFor(containerColor),
     contentWindowInsets: WindowInsets = WindowInsets.systemBars,
-    content: @Composable (PaddingValues) -> Unit
-) = BoxWithConstraints(
-    modifier = Modifier
-        .background(containerColor)
-        .then(modifier),
-    content = {
+    content: @Composable (safePadding: PaddingValues) -> Unit
+) = CompositionLocalProvider(LocalContentColor provides contentColor) {
 
-        CompositionLocalProvider(
-            LocalContentColor provides contentColor,
-            content = {
+    val isCompactWidth = LocalWindowState.current.isCompactWidth
+    val horizontalPadding = LocalWindowState.current.horizontalPadding
 
-                val isCompactWidth = LocalWindowState.current.isCompactWidth
+    FoundationLayoutImpl(
+        modifier = modifier,
+        horizontalPadding = horizontalPadding,
+        containerColor = containerColor,
+        topBar = topBar,
+        bottomBar = if (isCompactWidth) bottomBar else remember { {} },
+        sideRail = if (!isCompactWidth) sideRail else remember { {} },
+        snackbar = snackbarHost,
+        content = content,
+        contentWindowInsets = contentWindowInsets,
+    )
 
-                FoundationLayoutImpl(
-                    topBar = topBar,
-                    bottomBar = if (isCompactWidth) bottomBar else remember { {} },
-                    sideRail = if (!isCompactWidth) sideRail else remember { {} },
-                    snackbar = snackbarHost,
-                    content = content,
-                    contentWindowInsets = contentWindowInsets,
-                )
-
-            }
-        )
-
-    }
-)
+}
 
 @Composable
 private fun FoundationLayoutImpl(
+    modifier: Modifier,
+    horizontalPadding: Dp,
+    containerColor: Color,
     topBar: @Composable () -> Unit,
     bottomBar: @Composable () -> Unit,
     sideRail: @Composable () -> Unit,
     snackbar: @Composable () -> Unit,
     content: @Composable (PaddingValues) -> Unit,
     contentWindowInsets: WindowInsets
-) = SubcomposeLayout { constraints ->
+) = SubcomposeLayout(
+    modifier = Modifier
+        .background(containerColor)
+        .then(modifier)
+) { constraints ->
 
     val layoutWidth = constraints.maxWidth
     val layoutHeight = constraints.maxHeight
     val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
 
     layout(
-        width = layoutWidth, //.coerceIn(0, 16777215),
-        height = layoutHeight //.coerceIn(0, 16777215)
+        width = layoutWidth,
+        height = layoutHeight
     ) {
 
         // Defining side rail placeables.
@@ -137,6 +144,7 @@ private fun FoundationLayoutImpl(
         val sideRailHeight = sideRailPlaceables.maxByOrNull { it.height }?.height
 
         // Defining top bar placeables & height.
+
         val topBarPlaceables = subcompose(
             slotId = ResponsiveScaffoldLayoutContent.TopBar,
             content = topBar
@@ -145,12 +153,24 @@ private fun FoundationLayoutImpl(
             val leftInset = if (
                 layoutDirection == LayoutDirection.Ltr
                 && sideRailWidth != null
-            ) sideRailWidth else 0
+            ) {
+                (sideRailWidth +
+                        (horizontalPadding.roundToPx() - sideRailWidth)
+                            .coerceAtLeast(0))
+            } else {
+                horizontalPadding.roundToPx()
+            }
 
             val rightInset = if (
                 layoutDirection == LayoutDirection.Rtl
                 && sideRailWidth != null
-            ) sideRailWidth else 0
+            ) {
+                (sideRailWidth +
+                        (horizontalPadding.roundToPx() - sideRailWidth)
+                            .coerceAtLeast(0))
+            } else {
+                horizontalPadding.roundToPx()
+            }
 
             it.measure(
                 constraints = looseConstraints.offset(
@@ -159,9 +179,11 @@ private fun FoundationLayoutImpl(
             )
 
         }
-        val topBarHeight = topBarPlaceables.maxByOrNull { it.height }?.height ?: 0
+
+        val topBarHeight = topBarPlaceables.maxByOrNull { it.height }?.height
 
         // Defining snackbar placeables, width & height.
+
         val snackbarPlaceables = subcompose(
             slotId = ResponsiveScaffoldLayoutContent.Snackbar,
             content = snackbar
@@ -192,16 +214,20 @@ private fun FoundationLayoutImpl(
 
         val snackbarHeight = snackbarPlaceables.maxByOrNull { it.height }?.height ?: 0
         val snackbarWidth = (snackbarPlaceables.maxByOrNull { it.width }?.width ?: 0) -
-                (sideRailWidth ?: 0)
+                ((sideRailWidth?.plus(horizontalPadding.roundToPx() * 2))
+                    ?: (horizontalPadding.roundToPx() * 2))
 
         // Defining bottom bar placeables & height.
+
         val bottomBarPlaceables = subcompose(
             slotId = ResponsiveScaffoldLayoutContent.BottomBar,
             content = bottomBar
         ).map { it.measure(looseConstraints) }
+
         val bottomBarHeight = bottomBarPlaceables.maxByOrNull { it.height }?.height
 
         // Snackbar bottom offset.
+
         val snackbarOffsetFromBottom = if (snackbarHeight != 0) {
             snackbarHeight +
                     (bottomBarHeight
@@ -209,20 +235,84 @@ private fun FoundationLayoutImpl(
         } else 0
 
         // Defining body content placeables.
+
         val bodyContentPlaceables = subcompose(ResponsiveScaffoldLayoutContent.MainContent) {
+
             val insets = contentWindowInsets.asPaddingValues(this@SubcomposeLayout)
             val innerPadding = PaddingValues(
-                top = if (topBarPlaceables.isEmpty()) insets.calculateTopPadding()
-                else topBarHeight.toDp(),
-                bottom = if (bottomBarPlaceables.isEmpty() || bottomBarHeight == null) {
-                    insets.calculateBottomPadding()
-                } else bottomBarHeight.toDp(),
+                top = if (topBarPlaceables.isEmpty()) {
+                    insets.calculateTopPadding().plus(24.dp)
+                } else {
+                    topBarHeight?.toDp()?.plus(24.dp) ?: 24.dp
+                },
+                bottom = if (bottomBarPlaceables.isEmpty()) {
+                    insets.calculateBottomPadding().plus(24.dp)
+                } else {
+                    bottomBarHeight?.toDp()?.plus(24.dp) ?: 24.dp
+                },
                 start = if (sideRailPlaceables.isEmpty() || sideRailWidth == null) {
-                    insets.calculateStartPadding((this@SubcomposeLayout).layoutDirection)
-                } else sideRailWidth.toDp(),
+                    insets.calculateStartPadding(
+                        (this@SubcomposeLayout).layoutDirection
+                    ).plus(horizontalPadding).plus(16.dp)
+                } else {
+
+                    (sideRailWidth +
+                            (horizontalPadding.roundToPx() - sideRailWidth)
+                                .coerceAtLeast(0)).toDp() + 16.dp
+                },
                 end = insets.calculateEndPadding((this@SubcomposeLayout).layoutDirection)
+                    .plus(horizontalPadding).plus(16.dp)
             )
-            content(innerPadding)
+
+            BoxWithConstraints(
+                modifier = Modifier
+                    .graphicsLayer { alpha = .99f }
+                    .drawWithContent {
+
+                        drawContent()
+
+                        if (topBarHeight != null) {
+
+                            drawRect(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Black.copy(alpha = 0f),
+                                        Color.Black.copy(alpha = .1f),
+                                        Color.Black.copy(alpha = .1f),
+                                        Color.Black.copy(alpha = .1f),
+                                        Color.Black
+                                    ),
+                                    startY = 0.dp.toPx(),
+                                    endY = topBarHeight.toFloat() + 24.dp.toPx()
+                                ),
+                                blendMode = BlendMode.DstIn
+                            )
+
+                        }
+
+                        if (bottomBarHeight != null) {
+
+                            drawRect(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Black,
+                                        Color.Black.copy(alpha = .1f),
+                                        Color.Black.copy(alpha = .1f),
+                                        Color.Black.copy(alpha = .1f),
+                                        Color.Black.copy(alpha = 0f)
+                                    ),
+                                    startY = this.size.height - (bottomBarHeight + 24.dp.toPx()),
+                                    endY = this.size.height - 0.dp.toPx()
+                                ),
+                                blendMode = BlendMode.DstIn
+                            )
+
+                        }
+
+                    },
+                content = { content(innerPadding) }
+            )
+
         }.map { it.measure(looseConstraints) }
 
         /*
@@ -231,22 +321,31 @@ private fun FoundationLayoutImpl(
 
         // Defining the top bar placeables position offset.
         val topBarPlaceablesOffset = IntOffset(
-            x = if (layoutDirection == LayoutDirection.Ltr) sideRailWidth ?: 0 else 0,
+            x = if (layoutDirection == LayoutDirection.Ltr) {
+                if (sideRailWidth != null) {
+                    sideRailWidth +
+                            (horizontalPadding.roundToPx() - sideRailWidth)
+                                .coerceAtLeast(0)
+                } else horizontalPadding.roundToPx()
+            } else {
+                horizontalPadding.roundToPx()
+            },
             y = 0
         )
 
         // Defining the snackbar placeables position offset.
         val snackbarPlaceablesPositionOffset = IntOffset(
-            x = (layoutWidth - snackbarWidth) / 2 + contentWindowInsets.getLeft(
-                density = this@SubcomposeLayout,
-                layoutDirection = layoutDirection
-            ),
+            x = ((layoutWidth - horizontalPadding.roundToPx()) - snackbarWidth) / 2 +
+                    contentWindowInsets.getLeft(
+                        density = this@SubcomposeLayout,
+                        layoutDirection = layoutDirection
+                    ),
             y = layoutHeight - snackbarOffsetFromBottom
         )
 
         // Defining the bottom bar placeables position offset.
         val bottomBarPlaceablesPositionOffset = IntOffset(
-            x = 0,
+            x = horizontalPadding.roundToPx(),
             y = layoutHeight - (bottomBarHeight ?: 0)
         )
 

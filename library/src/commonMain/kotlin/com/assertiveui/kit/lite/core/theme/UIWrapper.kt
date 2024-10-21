@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.unit.DpSize
 import com.assertiveui.kit.lite.core.theme.color.palette.ColorPalette
 import com.assertiveui.kit.lite.core.theme.color.palette.LocalColorPalette
@@ -33,8 +34,8 @@ import com.assertiveui.kit.lite.core.theme.shape.Shapes
 import com.assertiveui.kit.lite.core.theme.typeface.LocalTextStyle
 import com.assertiveui.kit.lite.core.theme.typeface.LocalTypefaces
 import com.assertiveui.kit.lite.core.theme.typeface.Typefaces
-import com.assertiveui.kit.lite.core.utils.LocalWindowState
-import com.assertiveui.kit.lite.core.utils.rememberWindowState
+import com.assertiveui.kit.lite.core.utils.window.LocalWindowState
+import com.assertiveui.kit.lite.core.utils.window.rememberWindowState
 
 /**
  *
@@ -92,7 +93,7 @@ fun UIWrapper(
     animateColorPalette: Boolean = true,
     typefaces: Typefaces = Typefaces.Default,
     shapes: Shapes = Shapes.Default,
-    content: @Composable () -> Unit
+    content: @Composable @UiComposable () -> Unit
 ) = BoxWithConstraints {
 
     val finalColorPalette by rememberUpdatedState(
@@ -102,8 +103,8 @@ fun UIWrapper(
 
     val windowState by rememberWindowState(
         rootSize = DpSize(
-            width = maxWidth,
-            height = maxHeight
+            width = this@BoxWithConstraints.maxWidth,
+            height = this@BoxWithConstraints.maxHeight
         )
     )
 
@@ -111,7 +112,7 @@ fun UIWrapper(
         LocalWindowState provides windowState,
         LocalThemeMode provides themeMode,
         LocalColorPalette provides finalColorPalette,
-        LocalContentColor provides finalColorPalette.onSurfaceElevationLow,
+        LocalContentColor provides finalColorPalette.onSurfaceLow,
         LocalTypefaces provides typefaces,
         LocalTextStyle provides typefaces.bodyMedium,
         LocalShapes provides shapes,

@@ -37,9 +37,9 @@ import androidx.compose.ui.graphics.Color
 data class ColorPaletteModel(
     val lightColorPalette: ColorPalette = lightColorPalette(),
     val darkColorPalette: ColorPalette = darkColorPalette(),
-    val baseColorTonesHue: Int = LightColorPaletteTokens.baseHue,
+    val baseColorTonesHue: Int = DefaultColorPaletteColors.Light.baseHue,
     val baseColorTones: List<Color> = emptyList(),
-    val accentColorTonesHue: Int = LightColorPaletteTokens.accentHue,
+    val accentColorTonesHue: Int = DefaultColorPaletteColors.Light.accentHue,
     val accentColorTones: List<Color> = emptyList(),
     val surfaceColorTones: List<Color> = emptyList(),
     val errorColorTones: List<Color> = emptyList(),

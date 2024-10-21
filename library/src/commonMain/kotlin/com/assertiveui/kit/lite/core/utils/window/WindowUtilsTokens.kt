@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 
-package com.assertiveui.kit.lite.core.theme.shape
+package com.assertiveui.kit.lite.core.utils.window
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import sv.lib.squircleshape.CornerSmoothing
-import sv.lib.squircleshape.SquircleShape
-
-internal object DefaultShapeTokens : ShapeTokens {
-    override val extraShape: Shape get() = SquircleShape(100, .6f)
-    override val largeShape: Shape get() = SquircleShape(48.dp, CornerSmoothing.Small)
-    override val mediumShape: Shape get() = SquircleShape(24.dp, CornerSmoothing.Small)
-    override val smallShape: Shape get() = SquircleShape(16.dp, CornerSmoothing.Small)
-}
 
 @Immutable
-internal interface ShapeTokens {
-    val extraShape: Shape
-    val largeShape: Shape
-    val mediumShape: Shape
-    val smallShape: Shape
+internal sealed interface WindowUtilsTokens {
+
+    data object WindowSize : WindowUtilsTokens {
+        val MaxCompactWidth: Dp get() = 480.dp
+        val MaxMediumWidth: Dp get() = 900.dp
+        val MaxLargeWidth: Dp get() = 1920.dp
+    }
+
+    data object HorizontalPadding : WindowUtilsTokens {
+        val MinHorizontalPadding: Dp get() = 0.dp
+        val MaxHorizontalPadding: Dp get() = 200.dp
+    }
+
 }
