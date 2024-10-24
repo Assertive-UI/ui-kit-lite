@@ -16,21 +16,33 @@
 
 package com.assertiveui.kit.lite.core.components.layout.foundation
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
@@ -38,17 +50,123 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import com.assertiveui.kit.lite.core.components.ext.None
 import com.assertiveui.kit.lite.core.theme.Theme
 import com.assertiveui.kit.lite.core.theme.color.palette.ColorPaletteToken
 import com.assertiveui.kit.lite.core.theme.color.palette.LocalContentColor
 import com.assertiveui.kit.lite.core.theme.color.palette.colorFromToken
 import com.assertiveui.kit.lite.core.theme.color.palette.contentColorFor
 import com.assertiveui.kit.lite.core.utils.window.LocalWindowState
+
+/**
+ *
+ * The foundation for implementing an organized UI hierarchy for large screen devices.
+ *
+ * It provides the necessary functionality to put together several UI components
+ * into an organized UI hierarchy, by making an assertion
+ * based on the provided local context and other factors.
+ *
+ * @param modifier An optional [Modifier] to be applied to the layout.
+ * @param sideRail A side rail component, typically a SideRail.
+ * @param containerColor A color used for the background of the layout. Use [Color.Transparent]
+ * to have no color.
+ * @param contentColor A preferred color for the content inside the layout. Defaults to either the
+ * matching content color for [containerColor], or to the current [LocalContentColor] if
+ * [containerColor] is not a color from the theme.
+ * @param horizontalGap The empty gap between the two panes in dp.
+ * @param firstPaneContent The main content of the screen, e.g. a [LazyColumn]. The lambda receives a [PaddingValues] that should be
+ * applied to the content root via [Modifier.padding] and [Modifier.consumeWindowInsets] to
+ * properly offset top / bottom bars and side rail. If using [Modifier.verticalScroll], apply this modifier to
+ * the child of the scrollable component, and not on the scrollable itself.
+ *
+ */
+@Composable
+fun FoundationPaneLayout(
+    modifier: Modifier = Modifier,
+    sideRail: @Composable () -> Unit = remember { {} },
+    containerColor: Color = Theme.colorPalette.colorFromToken(ColorPaletteToken.SurfaceLow),
+    contentColor: Color = Theme.colorPalette.contentColorFor(containerColor),
+    horizontalGap: Dp = 32.dp,
+    fixedHorizontalPadding: Dp = 32.dp,
+    firstPaneContent: @Composable BoxScope.() -> Unit,
+    secondPaneContent: @Composable BoxScope.() -> Unit
+) = CompositionLocalProvider(LocalContentColor provides contentColor) {
+
+    val horizontalPadding by rememberUpdatedState(
+        LocalWindowState.current.horizontalPadding
+            .coerceAtLeast(fixedHorizontalPadding)
+    )
+
+    FoundationLayoutImpl(
+        modifier = modifier,
+        topBar = remember { {} },
+        bottomBar = remember { {} },
+        snackbar = remember { {} },
+        sideRail = sideRail,
+        containerColor = containerColor,
+        horizontalPadding = horizontalPadding,
+        contentWindowInsets = WindowInsets.None,
+        content = { safePadding ->
+
+            val layoutDirection = LocalLayoutDirection.current
+            val isLargeWindowWidth = LocalWindowState.current.isLargeWidth
+
+            val firstPaneWidth by animateFloatAsState(
+                targetValue = if (isLargeWindowWidth) .5f else 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                )
+            )
+
+            val secondPaneWidth by animateFloatAsState(
+                targetValue = if (isLargeWindowWidth) 1f else 0f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                )
+            )
+
+            val gapWidth by animateDpAsState(
+                targetValue = if (isLargeWindowWidth) horizontalGap else 0.dp,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                )
+            )
+
+            Row(
+                modifier = Modifier
+                    .padding(
+                        start = safePadding.calculateStartPadding(layoutDirection),
+                        end = safePadding.calculateEndPadding(layoutDirection)
+                    )
+                    .fillMaxWidth(),
+                content = {
+
+                    Box(
+                        modifier = Modifier.fillMaxWidth(firstPaneWidth),
+                        content = firstPaneContent
+                    )
+
+                    Spacer(modifier = Modifier.width(gapWidth))
+
+                    Box(
+                        modifier = Modifier.fillMaxWidth(secondPaneWidth),
+                        content = if (isLargeWindowWidth) secondPaneContent else remember { {} }
+                    )
+
+                }
+            )
+
+        }
+    )
+
+}
 
 /**
  *
@@ -72,6 +190,8 @@ import com.assertiveui.kit.lite.core.utils.window.LocalWindowState
  * params. The layout will take the insets into account from the top/bottom/start only if the [topBar]/
  * [bottomBar]/[sideRail] are not present, as the layout expect [topBar]/[bottomBar]/[sideRail]
  * to handle insets instead.
+ * @param useAdaptiveHorizontalPadding Whether to use adaptive horizontal padding (ranging from 0.dp on phones to 200.dp on desktops)
+ * based on the screen width.
  * @param content The main content of the screen, e.g. a [LazyColumn]. The lambda receives a [PaddingValues] that should be
  * applied to the content root via [Modifier.padding] and [Modifier.consumeWindowInsets] to
  * properly offset top / bottom bars and side rail. If using [Modifier.verticalScroll], apply this modifier to
@@ -88,11 +208,18 @@ fun FoundationLayout(
     containerColor: Color = Theme.colorPalette.colorFromToken(ColorPaletteToken.SurfaceLow),
     contentColor: Color = Theme.colorPalette.contentColorFor(containerColor),
     contentWindowInsets: WindowInsets = WindowInsets.systemBars,
+    useAdaptiveHorizontalPadding: Boolean = true,
+    fixedHorizontalPadding: Dp = 16.dp,
     content: @Composable (safePadding: PaddingValues) -> Unit
 ) = CompositionLocalProvider(LocalContentColor provides contentColor) {
 
     val isCompactWidth = LocalWindowState.current.isCompactWidth
-    val horizontalPadding = LocalWindowState.current.horizontalPadding
+    val horizontalPadding by rememberUpdatedState(
+        if (useAdaptiveHorizontalPadding) {
+            LocalWindowState.current.horizontalPadding
+                .coerceAtLeast(fixedHorizontalPadding)
+        } else fixedHorizontalPadding
+    )
 
     FoundationLayoutImpl(
         modifier = modifier,
@@ -251,17 +378,15 @@ private fun FoundationLayoutImpl(
                     bottomBarHeight?.toDp()?.plus(24.dp) ?: 24.dp
                 },
                 start = if (sideRailPlaceables.isEmpty() || sideRailWidth == null) {
-                    insets.calculateStartPadding(
-                        (this@SubcomposeLayout).layoutDirection
-                    ).plus(horizontalPadding).plus(16.dp)
+                    insets.calculateStartPadding((this@SubcomposeLayout).layoutDirection)
+                        .plus(horizontalPadding)
                 } else {
-
                     (sideRailWidth +
                             (horizontalPadding.roundToPx() - sideRailWidth)
-                                .coerceAtLeast(0)).toDp() + 16.dp
+                                .coerceAtLeast(0)).toDp()
                 },
                 end = insets.calculateEndPadding((this@SubcomposeLayout).layoutDirection)
-                    .plus(horizontalPadding).plus(16.dp)
+                    .plus(horizontalPadding)
             )
 
             BoxWithConstraints(
@@ -345,7 +470,7 @@ private fun FoundationLayoutImpl(
 
         // Defining the bottom bar placeables position offset.
         val bottomBarPlaceablesPositionOffset = IntOffset(
-            x = horizontalPadding.roundToPx(),
+            x = 0,
             y = layoutHeight - (bottomBarHeight ?: 0)
         )
 

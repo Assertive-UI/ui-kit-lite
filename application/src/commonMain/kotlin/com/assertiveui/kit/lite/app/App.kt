@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -32,6 +33,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.BasicText
@@ -44,7 +46,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.assertiveui.kit.lite.app.core.ui.AppUIWrapper
 import com.assertiveui.kit.lite.core.components.layout.foundation.FoundationLayout
+import com.assertiveui.kit.lite.core.components.layout.foundation.FoundationPaneLayout
 import com.assertiveui.kit.lite.core.theme.Theme
+import com.assertiveui.kit.lite.core.theme.ThemeMode
 import com.assertiveui.kit.lite.core.theme.color.palette.ColorPaletteToken
 import com.assertiveui.kit.lite.core.theme.color.palette.colorFromToken
 import com.assertiveui.kit.lite.core.utils.window.LocalWindowState
@@ -52,109 +56,265 @@ import com.assertiveui.kit.lite.core.utils.window.LocalWindowState
 @Composable
 fun App() {
 
-    AppUIWrapper {
+    AppUIWrapper(themeMode = ThemeMode.Light) {
 
-        FoundationLayout(
-            topBar = {
+        val isCompactWidth by rememberUpdatedState(LocalWindowState.current.isCompactWidth)
+        if (isCompactWidth) {
 
-                Box(
-                    modifier = Modifier
-                        .padding(
-                            WindowInsets.systemBars.exclude(
-                                WindowInsets.systemBars.only(
-                                    WindowInsetsSides.Bottom
-                                        .plus(WindowInsetsSides.Start)
+            FoundationLayout(
+                topBar = {
+
+                    Box(
+                        modifier = Modifier
+                            .padding(
+                                WindowInsets.systemBars.exclude(
+                                    WindowInsets.systemBars.only(
+                                        WindowInsetsSides.Bottom
+                                            .plus(WindowInsetsSides.Start)
+                                    )
+                                ).asPaddingValues()
+                            )
+                            .fillMaxWidth()
+                            .height(64.dp)
+                            .clip(Theme.shapes.extraShape),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+
+                        BasicText(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            text = "Compact View",
+                            style = Theme.typefaces.actionLarge.copy(
+                                color = Theme.colorPalette.colorFromToken(
+                                    token = ColorPaletteToken.OnSurfaceHigh
                                 )
-                            ).asPaddingValues()
+                            )
                         )
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                        .height(64.dp)
-                        .clip(Theme.shapes.extraShape)
-                        .background(Theme.colorPalette.surfaceHigh),
-                    contentAlignment = Alignment.CenterStart
+
+                    }
+
+                },
+                bottomBar = {
+
+                    Box(
+                        modifier = Modifier
+                            .padding(
+                                WindowInsets.systemBars.exclude(
+                                    WindowInsets.systemBars.only(
+                                        WindowInsetsSides.Top
+                                    )
+                                ).asPaddingValues()
+                            )
+                            .padding(16.dp)
+                            .fillMaxWidth()
+                            .height(64.dp)
+                            .clip(Theme.shapes.extraShape)
+                            .background(Theme.colorPalette.surfaceHigh)
+                    )
+
+                },
+                sideRail = {
+
+                    Box(
+                        modifier = Modifier
+                            .padding(WindowInsets.displayCutout.asPaddingValues())
+                            .padding(vertical = 64.dp)
+                            .padding(start = 16.dp)
+                            .width(64.dp)
+                            .height(360.dp)
+                            .fillMaxHeight(.67f)
+                            .clip(Theme.shapes.extraShape)
+                            .background(Theme.colorPalette.surfaceHigh)
+                    )
+
+                }
+            ) { safePadding ->
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentPadding = safePadding,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
 
-                    val width by rememberUpdatedState(
-                        LocalWindowState.current.availableWidthDp
-                    )
+                    items(count = 256) { i ->
 
-                    BasicText(
-                        modifier = Modifier.padding(horizontal = 32.dp),
-                        text = "Window width:  $width",
-                        style = Theme.typefaces.actionLarge.copy(
-                            color = Theme.colorPalette.colorFromToken(
-                                token = ColorPaletteToken.OnSurfaceHigh
-                            )
-                        )
-                    )
-
-                }
-
-            },
-            bottomBar = {
-
-                Box(
-                    modifier = Modifier
-                        .padding(
-                            WindowInsets.systemBars.exclude(
-                                WindowInsets.systemBars.only(
-                                    WindowInsetsSides.Top
+                        BasicText(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Theme.colorPalette.surfaceMedium)
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                            text = "Item: ${i + 1}",
+                            style = Theme.typefaces.bodyLarge.copy(
+                                color = Theme.colorPalette.colorFromToken(
+                                    token = ColorPaletteToken.OnSurfaceLow
                                 )
-                            ).asPaddingValues()
-                        )
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                        .height(64.dp)
-                        .clip(Theme.shapes.extraShape)
-                        .background(Theme.colorPalette.surfaceHigh)
-                )
-
-            },
-            sideRail = {
-
-                Box(
-                    modifier = Modifier
-                        .padding(WindowInsets.displayCutout.asPaddingValues())
-                        .padding(vertical = 64.dp)
-                        .padding(start = 16.dp)
-                        .width(64.dp)
-                        .height(360.dp)
-                        .fillMaxHeight(.67f)
-                        .clip(Theme.shapes.extraShape)
-                        .background(Theme.colorPalette.surfaceHigh)
-                )
-
-            }
-        ) { safePadding ->
-
-            LazyVerticalGrid(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentPadding = safePadding,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                columns = GridCells.Adaptive(200.dp)
-            ) {
-
-                items(count = 512) { i ->
-
-                    BasicText(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Theme.colorPalette.surfaceMedium)
-                            .padding(horizontal = 16.dp, vertical = 10.dp),
-                        text = "Item: ${i + 1}",
-                        style = Theme.typefaces.bodyLarge.copy(
-                            color = Theme.colorPalette.colorFromToken(
-                                token = ColorPaletteToken.OnSurfaceLow
                             )
                         )
-                    )
+
+                    }
 
                 }
 
             }
+
+        } else {
+
+            FoundationPaneLayout(
+                sideRail = {
+
+                    Box(
+                        modifier = Modifier
+                            .padding(WindowInsets.displayCutout.asPaddingValues())
+                            .padding(vertical = 64.dp)
+                            .padding(start = 16.dp, end = 24.dp)
+                            .width(64.dp)
+                            .height(360.dp)
+                            .fillMaxHeight(.67f)
+                            .clip(Theme.shapes.extraShape)
+                            .background(Theme.colorPalette.surfaceHigh)
+                    )
+
+                },
+                firstPaneContent = {
+
+                    FoundationLayout(
+                        useAdaptiveHorizontalPadding = false,
+                        fixedHorizontalPadding = 0.dp,
+                        topBar = {
+
+                            Box(
+                                modifier = Modifier
+                                    .padding(
+                                        WindowInsets.systemBars.exclude(
+                                            WindowInsets.systemBars.only(
+                                                WindowInsetsSides.Bottom
+                                                    .plus(WindowInsetsSides.Start)
+                                            )
+                                        ).asPaddingValues()
+                                    )
+                                    .fillMaxWidth()
+                                    .height(64.dp)
+                                    .clip(Theme.shapes.extraShape),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+
+                                BasicText(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    text = "First Pane",
+                                    style = Theme.typefaces.actionLarge.copy(
+                                        color = Theme.colorPalette.colorFromToken(
+                                            token = ColorPaletteToken.OnSurfaceHigh
+                                        )
+                                    )
+                                )
+
+                            }
+
+                        },
+                    ) { safePadding ->
+
+                        LazyVerticalGrid(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            contentPadding = safePadding,
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            columns = GridCells.Fixed(2)
+                        ) {
+
+                            items(count = 512) { i ->
+
+                                BasicText(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(Theme.colorPalette.surfaceMedium)
+                                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                                    text = "Item: ${i + 1}",
+                                    style = Theme.typefaces.bodyLarge.copy(
+                                        color = Theme.colorPalette.colorFromToken(
+                                            token = ColorPaletteToken.OnSurfaceLow
+                                        )
+                                    )
+                                )
+
+                            }
+
+                        }
+
+                    }
+
+                },
+                secondPaneContent = {
+
+                    FoundationLayout(
+                        useAdaptiveHorizontalPadding = false,
+                        fixedHorizontalPadding = 0.dp,
+                        topBar = {
+
+                            Box(
+                                modifier = Modifier
+                                    .padding(
+                                        WindowInsets.systemBars.exclude(
+                                            WindowInsets.systemBars.only(
+                                                WindowInsetsSides.Bottom
+                                                    .plus(WindowInsetsSides.Start)
+                                            )
+                                        ).asPaddingValues()
+                                    )
+                                    .fillMaxWidth()
+                                    .height(64.dp)
+                                    .clip(Theme.shapes.extraShape),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+
+                                BasicText(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    text = "Second Pane",
+                                    style = Theme.typefaces.actionLarge.copy(
+                                        color = Theme.colorPalette.colorFromToken(
+                                            token = ColorPaletteToken.OnSurfaceHigh
+                                        )
+                                    )
+                                )
+
+                            }
+
+                        },
+                    ) { safePadding ->
+
+                        LazyVerticalGrid(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            contentPadding = safePadding,
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            columns = GridCells.Fixed(2)
+                        ) {
+
+                            items(count = 128) { i ->
+
+                                BasicText(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1f)
+                                        .background(Theme.colorPalette.surfaceMedium)
+                                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                                    text = "Item: ${i + 1}",
+                                    style = Theme.typefaces.bodyLarge.copy(
+                                        color = Theme.colorPalette.colorFromToken(
+                                            token = ColorPaletteToken.OnSurfaceLow
+                                        )
+                                    )
+                                )
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            )
 
         }
 
